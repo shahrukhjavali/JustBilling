@@ -1,0 +1,39 @@
+#addproduct{
+    background: rgba(0, 0, 0, 0.0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.addproductfrm{
+    height: 450px;
+    width: 600px;
+    background: bisque;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+#uploadfrm{
+    background: rgba(0, 0, 0, 0.0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.uploadcontent{
+    height: 200px;
+    width: 400px;
+    background: bisque;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}

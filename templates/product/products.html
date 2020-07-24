@@ -1,0 +1,156 @@
+{% extends 'dashboard.html' %}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+    <title>Products</title>
+    {%endblock%}
+</head>
+<body>
+{%block css%}
+<link rel="stylesheet" href="{%static 'accounts/product.css'%}"/>
+{%endblock%}
+{%block js%}
+<script>
+    $(document).ready(function(){
+        $('#addproduct').hide();
+        $("#uploadfrm").hide();
+        $('#products').click(function(){
+            $('#addproduct').show();
+        });
+        $("#searchproducts").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#product_table tbody tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $('#product_imp').click(function(){
+            $('#uploadfrm').show();
+         });
+    });
+</script>
+{%endblock%}
+{%block content%}
+<div style="float:left">
+    <button class="btn btn-primary" id="products">Add</button>
+    <a id="productsimp" href="{%url 'importtemplate'%}" class="btn btn-success">Import Template</a>
+    <button id="product_imp" class="btn btn-info">Import</button>
+</div>
+<div style="float:right">
+    <div class="form-group">
+        <input type="text" placeholder="Search" id="searchproducts">
+    </div>
+</div>
+<div id="uploadfrm">
+    <div class="uploadcontent">
+        <p><b>Select CSV File</b></p>
+        <form method="post" action="{%url 'importcsvdata'%}" enctype="multipart/form-data">
+            {%csrf_token%}
+            <input type="file" name="file" id="file"><br><br>
+            <input type="submit" value="Upload" class="btn btn-success">
+            <a href="" class="btn btn-primary">Cancel</a>
+        </form>
+    </div>
+
+</div>
+<table class="table" id="product_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">Product Name</th>
+        <th scope="col">Product Catagory</th>
+        <th scope="col">Mfg Date</th>
+        <th scope="col">Exp Date</th>
+        <th scope="col">Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for product in addproducts%}
+    <tr>
+        <td>{{product.Name}}</td>
+        <td>{{product.catagory}}</td>
+        <td>{{product.mfgdate}}</td>
+        <td>{{product.expdate}}</td>
+        <td>{{product.price}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if addproducts.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ addproducts.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ addproducts.number }} of {{ addproducts.paginator.num_pages }}.
+        </span>
+
+        {% if addproducts.has_next %}
+            <a href="?page={{ addproducts.next_page_number }}">next</a>
+            <a href="?page={{ addproducts.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+<div id="addproduct">
+    <div class="addproductfrm">
+        <h3>Add Product</h3>
+        <form method="post" class="form-horizontal">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" id="prodname" name="prodname"/>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="desc" name="desc"/>
+            </div>
+            <div class="form-group">
+                <label>Catagory</label>
+                <select id="catagory" name="catagory">
+                    <option>Select Catagory</option>
+                    <option value="Mob">Mobile</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="Food">Food</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Mfg Date</label>
+                <input type="date" id="mfg_date" name="mfg_date"/>
+            </div>
+            <div class="form-group">
+                <label>Exp Date</label>
+                <input type="date" id="Exp_date" name="Exp_date"/>
+            </div>
+            <div class="form-group">
+                <label>Price</label>
+                <input type="number" id="price" name="price"/>
+            </div>
+            <button type="submit" id="submitbtn" value="Add" class="btn btn-success itmsub">
+                <span>Add</span>
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-plus-square-fill" fill="currentColor"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>
+                </svg>
+            </button>
+            <button class="btn btn-primary">
+                <a href="{%url 'newproduct'%}" style="color:white">Cancel</a>
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                    <path fill-rule="evenodd"
+                          d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                </svg>
+            </button>
+        </form>
+    </div>
+</div>
+{%endblock%}
+</body>
+</html>

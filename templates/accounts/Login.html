@@ -1,0 +1,30 @@
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+    <link rel="stylesheet" href="{%static 'bootstrap/css/bootstrap.min.css'%}"/>
+    <link rel="stylesheet" href="{%static 'accounts/login.css'%}"/>
+    <script src="{%static 'bootstrap/js/bootstrap.min.js'%}"></script>
+    <script src="{%static 'bootstrap/js/jquery-3.4.1.js'%}"></script>
+</head>
+<body>
+<div class="body"></div>
+<div class="grad"></div>
+<div class="header">
+    <div>Just<span>Billing</span></div>
+</div>
+<br>
+<div class="login">
+    <form method="post">
+        {%csrf_token%}
+        <input type="text" id="email" placeholder="username" name="email"><br>
+        <input type="password" id="password" placeholder="password" name="password"><br><br>
+        <input type="submit" class="btn btn-primary" value="Login">
+    </form>
+</div>
+</body>
+</html>
