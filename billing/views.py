@@ -38,7 +38,6 @@ class Customer(View):
 
 
 class newBill(View):
-
     def get(self, request, **kwargs):
         customer = cust.objects.get(id=kwargs['id'])
         bar_code = barcodeScanner()
