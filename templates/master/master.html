@@ -1,3 +1,4 @@
+{%extends 'dashboard.html'%}
 {%load staticfiles%}
 <html lang="en">
 <head>
@@ -5,29 +6,111 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Master</title>
-    <link rel="stylesheet" href="{%static 'bootstrap/css/bootstrap.min.css'%}"/>
-    <link rel="stylesheet" href="{%static 'accounts/master.css'%}"/>
-    <script src="{%static 'bootstrap/js/bootstrap.min.js'%}"></script>
-    <script src="{%static 'bootstrap/js/jquery-3.4.1.js'%}"></script>
+    {%block title%}
+    <title>Master UOM</title>
+    {%endblock%}
 </head>
 <body>
-<div class="Container">
+{%block css%}
+<link rel="stylesheet" href="{%static 'accounts/master.css'%}"/>
+{%if not request.user.admin%}
+<style>
+    .disable{
+         cursor: default;
+         pointer-events: none;
+         text-decoration: none;
+         color: grey;
+      }
+</style>
+{%endif%}
+{%endblock%}
+{%block js%}
+<script>
+        $(document).ready(function(){
+            $('#uomform').hide();
+            $('#importform').hide();
+            $('#uom').click(function(){
+                $('#uomform').show();
+            });
+             $('#uom_imp').click(function(){
+                $('#importform').show();
+            });
+        });
+</script>
+{%endblock%}
+{%block content%}
+<div style="float:left" class="disable">
+    <button class="btn btn-primary disable" id="uom">Add</button>
+    <a id="productsimp" href="{%url 'importuomtemplate'%}" class="btn btn-success disable">Import Template</a>
+    <button id="uom_imp" class="btn btn-info disable">Import</button>
+</div>
+<br>
+<div id="importform">
+    <div class="importfrmcontent">
+        <strong>Upload Csv template file</strong>
+        <form method="post" enctype="multipart/form-data" action="{%url 'importuomdata'%}">
+            {%csrf_token%}
+            <input type="file" name="file"/><br><br>
+            <input type="submit" value="Upload" class="btn btn-success"/>
+            <a href="{%url 'createuom'%}" class="btn btn-info">Cancel</a>
+        </form>
+    </div>
+</div>
+<br>
+<div id="uomform">
     <div class="adduomfrm">
         <h3>Add UOM</h3>
         <form method="post" class="form-horizontal">
             {%csrf_token%}
             <div class="form-group">
                 <label>Uom Name</label>
-                <input type="text" id="uom_name" name="uom_name"/>
+                <input type="text" id="uom_name" name="uom_name" maxlength="3"/>
             </div>
             <div class="form-group">
                 <label>Description</label>
                 <input type="text" id="desc" name="desc"/>
             </div>
-            <input type="submit" value="submit" class="btn btn-primary"/>
+            <input type="submit" value="submit" class="btn btn-info"/>
+            <a href="{%url 'createuom'%}" class="btn btn-info">Cancel</a>
         </form>
     </div>
 </div>
+<br>
+<table class="table" id="uom_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">Uom Name</th>
+        <th scope="col">Desc</th>
+        <th scope="col">Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for uom in uomlist%}
+    <tr>
+        <td>{{uom.name}}</td>
+        <td>{{uom.desc}}</td>
+        <td>{{uom.status}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if uomlist.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ uomlist.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ uomlist.number }} of {{ uomlist.paginator.num_pages }}.
+        </span>
+
+        {% if addproducts.has_next %}
+            <a href="?page={{ uomlist.next_page_number }}">next</a>
+            <a href="?page={{ uomlist.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{%endblock%}
 </body>
 </html>

@@ -1,15 +1,22 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from django.views.generic import View
 from .models import UOM
+from django.core.paginator import Paginator
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
+import csv, io
+
+
+# from django.contrib.auth.decorators import login_required
 
 class createUomview(View):
-    def get(self,request):
-        return render(self.request,'master/master.html')
+    def get(self, request):
+        object = UOM.objects.all().order_by("-last_update_date")
+        paginator = Paginator(object, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(self.request, 'master/master.html', {'uomlist': page_obj})
 
-    @login_required
-    def post(self,request):
+    def post(self, request):
         uomname = request.POST.get('uom_name')
         description = request.POST.get('desc')
         obj = UOM()
@@ -20,5 +27,40 @@ class createUomview(View):
         obj.last_update_by = request.user
         obj.last_update_date = timezone.now()
         obj.save()
-        return render(self.request, 'master/master.html')
+        object = UOM.objects.all().order_by("-last_update_date")
+        paginator = Paginator(object, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(self.request, 'master/master.html', {'uomlist': page_obj})
 
+
+def importUomtemplate(request):
+    response = HttpResponse(content_type='text/csv')
+    write = csv.writer(response)
+    write.writerow(['name', 'description'])
+    response['content-Disposition'] = 'attachment,filename="uom.csv"'
+    return response
+
+
+def importUomdata(request):
+    object = UOM.objects.all().order_by("-last_update_date")
+    paginator = Paginator(object, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    if request.method == 'POST':
+        filename = request.FILES['file']
+        if filename.name.endswith('.csv'):
+            data_set = filename.read().decode('UTF-8')
+            io_string = io.StringIO(data_set)
+            next(io_string)
+            for column in csv.reader(io_string, delimiter=',', quotechar="|"):
+                UOM.objects.update_or_create(
+                    name=column[0],
+                    desc=column[1],
+                    status=True,
+                    createdby = request.user,
+                    creationdate = timezone.now(),
+                    last_update_by = request.user,
+                    last_update_date = timezone.now()
+                )
+        return render(request, 'master/master.html', {'uomlist': page_obj})
