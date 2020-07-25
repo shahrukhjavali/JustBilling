@@ -1,0 +1,101 @@
+{%extends 'dashboard.html'%}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+    <title>User</title>
+    {%endblock%}
+    {%block css%}
+    <link rel="stylesheet" href="{%static 'accounts/user.css'%}"/>
+    {%endblock%}
+</head>
+<body>
+{%block js%}
+<script>
+    $(document).ready(function(){
+        $('#adduser').hide();
+        $('#btnadd').click(function(){
+            $('#adduser').show();
+        });
+        $('#confirmpassword').on("keyup",function(){
+            if($('#password').val() == $('#confirmpassword').val()){
+                document.getElementById('validate').innerHTML = '';
+            }else{
+                $('#validate').text("Password did not match");
+            }
+        });
+        $('#submituserbtn').click(function(){
+            alert("User added successfully");
+        });
+    });
+</script>
+{%endblock%}
+{%block content%}
+<div id="adduser">
+    <div class="usrcontent">
+        <form method="post">
+            <strong>Create a new User</strong>
+            <br>
+            {%csrf_token%}
+            <span id="validate" style="color:red"></span><br>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required="true"/>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" id="password" required="true"/>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="confirmpassword" required="true" id="confirmpassword"/>
+            </div>
+            <input type="submit" value="Create" class="btn btn-info" id="submituserbtn">
+        </form>
+    </div>
+</div>
+<!--<button id="btnadd" class="btn btn-info" style="float:left">Add</button><br><br>-->
+<table class="table" id="user_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">User Email</th>
+        <th scope="col">User Role</th>
+        <th scope="col">Active</th>
+        <th scope="col">Staff</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for user in user_all%}
+    <tr>
+        <td>{{user.email}}</td>
+        <td>{{user.usr_role}}</td>
+        <td>{{user.active}}</td>
+        <td>{{user.staff}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if addproducts.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ user_all.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ user_all.number }} of {{ user_all.paginator.num_pages }}.
+        </span>
+
+        {% if addproducts.has_next %}
+            <a href="?page={{ user_all.next_page_number }}">next</a>
+            <a href="?page={{ user_all.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{%endblock%}
+</body>
+</html>

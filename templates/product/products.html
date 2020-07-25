@@ -13,6 +13,17 @@
 <body>
 {%block css%}
 <link rel="stylesheet" href="{%static 'accounts/product.css'%}"/>
+{%if not request.user.admin%}
+<style>
+        .disable{
+         cursor: default;
+         pointer-events: none;
+         text-decoration: none;
+         color: grey;
+      }
+
+</style>
+{%endif%}
 {%endblock%}
 {%block js%}
 <script>
@@ -32,13 +43,14 @@
             $('#uploadfrm').show();
          });
     });
+
 </script>
 {%endblock%}
 {%block content%}
 <div style="float:left">
-    <button class="btn btn-primary" id="products">Add</button>
-    <a id="productsimp" href="{%url 'importtemplate'%}" class="btn btn-success">Import Template</a>
-    <button id="product_imp" class="btn btn-info">Import</button>
+    <button class="btn btn-primary disable" id="products">Add</button>
+    <a id="productsimp" href="{%url 'importtemplate'%}" class="btn btn-success disable">Import Template</a>
+    <button id="product_imp" class="btn btn-info disable">Import</button>
 </div>
 <div style="float:right">
     <div class="form-group">
