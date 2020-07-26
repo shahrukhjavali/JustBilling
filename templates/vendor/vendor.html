@@ -1,0 +1,182 @@
+{%extends 'dashboard.html'%}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+    <title>Vendor</title>
+    {%endblock%}
+</head>
+<body>
+{%block css%}
+<link rel="stylesheet" href="{%static 'accounts/vendor.css'%}"/>
+{%if not request.user.admin%}
+<style>
+    .disable{
+         cursor: default;
+         pointer-events: none;
+         text-decoration: none;
+         color: grey;
+      }
+</style>
+{%endif%}
+{%endblock%}
+{%block js%}
+    <script>
+        $(document).ready(function(){
+            $('#venform').hide();
+            $('#importform').hide();
+            $('#vendor').click(function(){
+                $('#venform').show();
+            });
+            $('#vendor_imp').click(function(){
+                $('#importform').show();
+            });
+        });
+    </script>
+{%endblock%}
+{%block content%}
+<div style="float:left" class="disable">
+    <button class="btn btn-primary disable" id="vendor">Add</button>
+    <a id="productsimp" href="{%url 'importcsv_vendor'%}" class="btn btn-success disable">Import Template</a>
+    <button id="vendor_imp" class="btn btn-info disable">Import</button>
+</div>
+<br>
+<div id="importform">
+    <div class="importfrmcontent">
+        <strong>Upload Csv template file</strong>
+        <form method="post" enctype="multipart/form-data" action="{%url 'importvendordata'%}">
+            {%csrf_token%}
+            <input type="file" name="file"/><br><br>
+            <input type="submit" value="Upload" class="btn btn-success"/>
+            <a href="{%url 'createnew'%}" class="btn btn-info">Cancel</a>
+        </form>
+    </div>
+</div>
+<br>
+<div id="venform">
+    <div class="vencontent">
+        <form method="post">
+            <strong>Add Vendor</strong>
+            {%csrf_token%}
+            <table>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label>Vendor Name</label>
+                            <input type="text" name="vname"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="number" name="phone"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label>adderss 1</label>
+                            <input type="text" name="adderss1"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label>adderss 2</label>
+                            <input type="text" name="adderss2"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label>city</label>
+                            <input type="text" name="city"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label>state</label>
+                            <input type="text" name="state"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label>pincode</label>
+                            <input type="text" name="pincode"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" value="Add" class="btn btn-primary">
+                    </td>
+                    <td>
+                        <a href="{%url 'createnew'%}" class="btn btn-info">Cancel</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<br>
+<table class="table" id="uom_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">VandorName</th>
+        <th scope="col">Adderss</th>
+        <th scope="col">Phone</th>
+        <th scope="col">Email</th>
+        <th scope="col">City</th>
+        <th scope="col">State</th>
+        <th scope="col">Pincode</th>
+        <th scope="col">Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for vendor in vendorlist%}
+    <tr>
+        <td>{{vendor.name}}</td>
+        <td>{{vendor.adderss}}</td>
+        <td>{{vendor.phone}}</td>
+        <td>{{vendor.email}}</td>
+        <td>{{vendor.city}}</td>
+        <td>{{vendor.state}}</td>
+        <td>{{vendor.pincode}}</td>
+        <td>{{vendor.status}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if uomlist.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ vendorlist.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ vendorlist.number }} of {{ vendorlist.paginator.num_pages }}.
+        </span>
+
+        {% if vendorlist.has_next %}
+            <a href="?page={{ vendorlist.next_page_number }}">next</a>
+            <a href="?page={{ vendorlist.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{%endblock%}
+</body>
+</html>
