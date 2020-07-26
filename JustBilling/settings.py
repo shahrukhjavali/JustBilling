@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'master',
     'products',
     'billing',
-    'purchaseorder',
     'vendor',
 ]
 
