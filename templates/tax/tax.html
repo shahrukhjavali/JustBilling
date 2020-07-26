@@ -1,0 +1,107 @@
+{%extends 'dashboard.html'%}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+    <title>Master Tax</title>
+    {%endblock%}
+</head>
+<body>
+{%block js%}
+    <script>
+        $(document).ready(function(){
+            $('#addtaxform').hide();
+            $('#tax').click(function(){
+                $('#addtaxform').show();
+            });
+
+        });
+    </script>
+{%endblock%}
+{%block css%}
+<link rel="stylesheet" href="{%static 'accounts/tax.css'%}"/>
+{%if not request.user.admin%}
+<style>
+    .disable{
+         cursor: default;
+         pointer-events: none;
+         text-decoration: none;
+         color: grey;
+      }
+</style>
+{%endif%}
+{%endblock%}
+{%block content%}
+<div style="float:left" class="disable">
+    <button class="btn btn-primary disable" id="tax">Add</button>
+   <!-- <a id="productsimp" href="{%url 'importuomtemplate'%}" class="btn btn-success disable">Import Template</a>
+    <button id="uom_imp" class="btn btn-info disable">Import</button>-->
+</div>
+<div id="addtaxform">
+    <div class="taxcontent">
+        <strong>Add Tax</strong>
+        <form method="post">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="tname"/>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="desc"/>
+            </div>
+            <div class="form-group">
+                <label>Percentage</label>
+                <input type="number" name="per"/>
+            </div>
+            <input type="submit" value="Create" class="btn btn-primary"/>
+            <a href="{%url 'createtax'%}" class="btn btn-info">Cancel</a>
+        </form>
+    </div>
+</div>
+<br>
+<br>
+<table class="table" id="uom_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">Tax Name</th>
+        <th scope="col">Description</th>
+        <th scope="col">Percentage</th>
+        <th scope="col">Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for tax in taxlist%}
+    <tr>
+        <td>{{tax.name}}</td>
+        <td>{{tax.description}}</td>
+        <td>{{tax.percentage}}</td>
+        <td>{{tax.status}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if taxlist.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ taxlist.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ taxlist.number }} of {{ taxlist.paginator.num_pages }}.
+        </span>
+
+        {% if taxlist.has_next %}
+            <a href="?page={{ taxlist.next_page_number }}">next</a>
+            <a href="?page={{ taxlist.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{%endblock%}
+</body>
+</html>

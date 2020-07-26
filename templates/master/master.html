@@ -105,7 +105,7 @@
             Page {{ uomlist.number }} of {{ uomlist.paginator.num_pages }}.
         </span>
 
-        {% if addproducts.has_next %}
+        {% if uomlist.has_next %}
             <a href="?page={{ uomlist.next_page_number }}">next</a>
             <a href="?page={{ uomlist.paginator.num_pages }}">last &raquo;</a>
         {% endif %}

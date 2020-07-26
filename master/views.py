@@ -1,12 +1,39 @@
 from django.shortcuts import render, HttpResponse
 from django.views.generic import View
-from .models import UOM
+from .models import UOM,Tax
 from django.core.paginator import Paginator
 from django.utils import timezone
 import csv, io
 
 
 # from django.contrib.auth.decorators import login_required
+class createTaxview(View):
+    def get(self,request):
+        object = Tax.objects.all().order_by("-last_update_date")
+        paginator = Paginator(object, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(self.request,'tax/tax.html', {'taxlist': page_obj})
+
+    def post(self,request):
+        object = Tax.objects.all().order_by("-last_update_date")
+        paginator = Paginator(object, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        name = request.POST.get('tname')
+        desc = request.POST.get('desc')
+        percentage = float(request.POST.get('per'))
+        obj = Tax()
+        obj.name = name
+        obj.description = desc
+        obj.percentage = percentage
+        obj.status = True
+        obj.createdby = request.user
+        obj.creationdate = timezone.now()
+        obj.last_update_by = request.user
+        obj.last_update_date = timezone.now()
+        obj.save()
+        return render(self.request, 'tax/tax.html', {'taxlist': page_obj})
 
 class createUomview(View):
     def get(self, request):
@@ -64,3 +91,4 @@ def importUomdata(request):
                     last_update_date = timezone.now()
                 )
         return render(request, 'master/master.html', {'uomlist': page_obj})
+

@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'master',
     'products',
     'billing',
+    'purchaseorder',
+    'vendor',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
