@@ -6,12 +6,18 @@ from .models import Customer as cust
 from master.models import UOM
 from .models import Itemsdetails
 from django.utils import timezone
-import random
+from django.core.paginator import Paginator
+import random,csv,io
 
 
 class Customer(View):
     def get(self, request):
-        return render(self.request, 'bill/Customer_details.html')
+        object = cust.objects.all().order_by("-id")
+        paginator = Paginator(object, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        custobj = cust.objects.all().filter(id=1).exists()
+        return render(self.request, 'bill/Customer_details.html',{'customerdetails':page_obj,'customer':custobj})
 
     def post(self, request):
         name = request.POST.get('cust_name')
@@ -29,7 +35,11 @@ class Customer(View):
         obj.billdate = timezone.now()
         obj.executvie = request.user
         obj.save()
-        return render(self.request, 'bill/Customer_details.html')
+        object = cust.objects.all().order_by("-id")
+        paginator = Paginator(object, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(self.request, 'bill/Customer_details.html',{'customerdetails':page_obj})
 
     def genarateBillnum(self):
         billnum = random.randrange(1, 9000)
@@ -79,7 +89,7 @@ def editItemqty(request, id):
         if objectprod.exists():
             obj = objectprod[0]
             if obj.qty >= dec:
-                obj.qty = obj.qty + int(dec)
+                obj.qty = obj.qty - int(dec)
                 obj.total_price = float(int(obj.products.price)) * obj.qty
                 obj.save()
         return redirect('/billing/newbill/' + customer_id)
@@ -91,3 +101,34 @@ def delete_childitm(request, id):
         objectprod = Itemsdetails.objects.filter(cust=customer_id).filter(products=id)
         objectprod.delete()
     return redirect('/billing/newbill/' + customer_id)
+
+def importCust_template(request):
+    response = HttpResponse(content_type='text/csv')
+    write = csv.writer(response)
+    write.writerow(['Customer Name','Adderss','Phone Number','Email','bill num'])
+    response['content-Disposition'] = 'attachment,filename="customer.csv"'
+    return response
+
+def importcustomerdata(request):
+    object = cust.objects.all().order_by("-id")
+    paginator = Paginator(object, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    if request.method == 'POST':
+        filename = request.FILES['file']
+        if filename.name.endswith('.csv'):
+            data_set = filename.read().decode('UTF-8')
+            io_string = io.StringIO(data_set)
+            next(io_string)
+            for column in csv.reader(io_string, delimiter=',', quotechar="|"):
+                cust.objects.update_or_create(
+                    sellername = 'SimpleBilling',
+                    billtoname = column[0],
+                    adderss = column[1],
+                    phonenumber = column[2],
+                    email = column[3],
+                    billnum = column[4],
+                    billdate = timezone.now(),
+                    executvie = request.user
+                )
+        return render(request, 'bill/Customer_details.html',{'customerdetails':page_obj})

@@ -10,20 +10,19 @@ from django.contrib.auth.decorators import login_required
 
 
 class loginView(View):
-
     def get(self, request):
         return render(self.request, 'accounts/Login.html')
 
     def post(self, request):
         object_count = Products.objects.all().count()
-        custcount = Customer.objects.count()
+        cust = Customer.objects.all().filter(id = 1).exists()
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate(self.request, email=email, password=password)
         if user is not None:
             messages.success(self.request, "User Loggined successfully")
             login(self.request, user)
-            return render(self.request, 'dashboard.html', {'product_count': object_count,'customercount':custcount})
+            return render(self.request, 'dashboard.html', {'product_count': object_count,'customer':cust})
         else:
             messages.error(self.request, "Invalid username or Passowrd")
             return render(self.request, 'accounts/Login.html')
@@ -56,7 +55,10 @@ class Userprofile(View):
 @login_required
 def dashBoard(request):
     object_count = Products.objects.all().count()
-    return render(request, 'dashboard.html', {'product_count': object_count})
+    cust = False
+    if request.user:
+        cust = Customer.objects.all().filter(id=1).exists()
+    return render(request, 'dashboard.html', {'product_count': object_count,'customer':cust})
 
 
 
