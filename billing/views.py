@@ -3,7 +3,7 @@ from django.views.generic import View
 from products.models import Products
 from .BarcodeReader import barcodeScanner
 from .models import Customer as cust
-from master.models import UOM
+from master.models import UOM,Tax
 from .models import Itemsdetails
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -53,8 +53,9 @@ class newBill(View):
         bar_code = barcodeScanner()
         products = Products.objects.filter(Barcode=bar_code)
         products_added = Itemsdetails.objects.filter(cust=kwargs['id'])
+        tax = Tax.objects.all()
         return render(self.request, 'bill/newbill.html',
-                      {'items': products_added, 'billtocustomer': customer, 'product': products, 'custid': customer})
+                      {'items': products_added, 'billtocustomer': customer, 'product': products, 'custid': customer,'taxs':tax})
 
     def post(self, request, **kwargs):
         id = request.POST.get('pid')
@@ -75,6 +76,7 @@ class newBill(View):
             obj.products = prod
             obj.qty = float(int(qty))
             obj.uom = uomprod
+            obj.itm_billnum = cust_details.billnum
             obj.total_price = ((float(int(prod.price)) * float(int(qty))))
             obj.save()
         products_added = Itemsdetails.objects.filter(cust=kwargs['id'])
@@ -98,7 +100,8 @@ def editItemqty(request, id):
 def delete_childitm(request, id):
     if request.method == 'POST':
         customer_id = request.POST.get('customerid')
-        objectprod = Itemsdetails.objects.filter(cust=customer_id).filter(products=id)
+        billnum = request.POST.get('billnumber')
+        objectprod = Itemsdetails.objects.filter(cust=customer_id).filter(products=id).filter(itm_billnum=billnum)
         objectprod.delete()
     return redirect('/billing/newbill/' + customer_id)
 

@@ -15,6 +15,7 @@ class Customer(models.Model):
 
 class Itemsdetails(models.Model):
     cust = models.ForeignKey(Customer,on_delete=models.CASCADE,related_name='cust')
+    itm_billnum = models.CharField(max_length=30)
     products = models.ForeignKey(Products,on_delete=models.CASCADE)
     qty = models.FloatField()
     uom = models.ForeignKey(UOM,on_delete=models.CASCADE)
@@ -22,6 +23,7 @@ class Itemsdetails(models.Model):
 
 class billsStatus(models.Model):
     customer = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    billstatus_billnum = models.CharField(max_length=30)
     status = models.CharField(max_length=30)
     paymentType = models.CharField(max_length=30)
     tax = models.FloatField()
