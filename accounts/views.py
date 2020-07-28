@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from products.models import Products
 from accounts.models import User
+from billing.models import Customer
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
@@ -15,13 +16,14 @@ class loginView(View):
 
     def post(self, request):
         object_count = Products.objects.all().count()
+        custcount = Customer.objects.count()
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate(self.request, email=email, password=password)
         if user is not None:
             messages.success(self.request, "User Loggined successfully")
             login(self.request, user)
-            return render(self.request, 'dashboard.html', {'product_count': object_count})
+            return render(self.request, 'dashboard.html', {'product_count': object_count,'customercount':custcount})
         else:
             messages.error(self.request, "Invalid username or Passowrd")
             return render(self.request, 'accounts/Login.html')
