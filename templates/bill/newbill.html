@@ -93,6 +93,13 @@ $(document).ready(function(){
             <strong>Bill Number:</strong>
             <span>{{billtocustomer.billnum}}</span>
         </td>
+        <td>
+             <strong>Total</strong>
+            {%for total_c in total%}
+                <span>{{total_c.billspayable}}</span>
+            {%endfor%}
+        </td>
+    </tr>
 </table>
 <div style="float:left">
     <a href="{%url 'newbill' billtocustomer.id %}" id="additmbtn" class="btn btn-primary">

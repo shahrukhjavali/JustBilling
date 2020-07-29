@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.views.generic import View
 from products.models import Products
 from .BarcodeReader import barcodeScanner
-from .models import Customer as cust,billsStatus
-from master.models import UOM,Tax
+from .models import Customer as cust, billsStatus
+from master.models import UOM, Tax
 from .models import Itemsdetails
 from django.utils import timezone
 from django.core.paginator import Paginator
-import random,csv,io
+import random, csv, io
 
 
 class Customer(View):
@@ -17,7 +17,7 @@ class Customer(View):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         custobj = cust.objects.all().filter(id=1).exists()
-        return render(self.request, 'bill/Customer_details.html',{'customerdetails':page_obj,'customer':custobj})
+        return render(self.request, 'bill/Customer_details.html', {'customerdetails': page_obj, 'customer': custobj})
 
     def post(self, request):
         name = request.POST.get('cust_name')
@@ -39,7 +39,7 @@ class Customer(View):
         paginator = Paginator(object, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        return render(self.request, 'bill/Customer_details.html',{'customerdetails':page_obj})
+        return render(self.request, 'bill/Customer_details.html', {'customerdetails': page_obj})
 
     def genarateBillnum(self):
         billnum = random.randrange(1, 9000)
@@ -54,8 +54,11 @@ class newBill(View):
         products = Products.objects.filter(Barcode=bar_code)
         products_added = Itemsdetails.objects.filter(cust=kwargs['id'])
         tax = Tax.objects.all()
+        bnum = customer.billnum
+        total = billsStatus.objects.filter(customer=kwargs['id']).filter(billstatus_billnum=bnum)
         return render(self.request, 'bill/newbill.html',
-                      {'items': products_added, 'billtocustomer': customer, 'product': products, 'custid': customer,'taxs':tax})
+                      {'items': products_added, 'billtocustomer': customer, 'product': products, 'custid': customer,
+                       'taxs': tax,'total':total})
 
     def post(self, request, **kwargs):
         id = request.POST.get('pid')
@@ -105,12 +108,14 @@ def delete_childitm(request, id):
         objectprod.delete()
     return redirect('/billing/newbill/' + customer_id)
 
+
 def importCust_template(request):
     response = HttpResponse(content_type='text/csv')
     write = csv.writer(response)
-    write.writerow(['Customer Name','Adderss','Phone Number','Email','bill num'])
+    write.writerow(['Customer Name', 'Adderss', 'Phone Number', 'Email', 'bill num'])
     response['content-Disposition'] = 'attachment,filename="customer.csv"'
     return response
+
 
 def importcustomerdata(request):
     object = cust.objects.all().order_by("-id")
@@ -125,22 +130,19 @@ def importcustomerdata(request):
             next(io_string)
             for column in csv.reader(io_string, delimiter=',', quotechar="|"):
                 cust.objects.update_or_create(
-                    sellername = 'SimpleBilling',
-                    billtoname = column[0],
-                    adderss = column[1],
-                    phonenumber = column[2],
-                    email = column[3],
-                    billnum = column[4],
-                    billdate = timezone.now(),
-                    executvie = request.user
+                    sellername='SimpleBilling',
+                    billtoname=column[0],
+                    adderss=column[1],
+                    phonenumber=column[2],
+                    email=column[3],
+                    billnum=column[4],
+                    billdate=timezone.now(),
+                    executvie=request.user
                 )
-        return render(request, 'bill/Customer_details.html',{'customerdetails':page_obj})
+        return render(request, 'bill/Customer_details.html', {'customerdetails': page_obj})
+
 
 def calculate_total(request):
-    object = cust.objects.all().order_by("-id")
-    paginator = Paginator(object, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
     sumadd = 0
     twithtax = 0
     if request.method == 'POST':
@@ -150,22 +152,47 @@ def calculate_total(request):
         tax = float(request.POST.get('taxper'))
         disc = request.POST.get('disc')
         custtobill = cust.objects.get(id=cid)
-        items = Itemsdetails.objects.filter(cust_id=cid).filter(itm_billnum = bnum)
-        for i in items:
-            sumadd = sumadd+i.total_price
-        twithtax = ((sumadd*tax)/100)+sumadd
-        print(twithtax)
-        #if disc is not None:
-            #twithtax = (twithtax*float(disc))/100
-        obj = billsStatus()
-        obj.customer = custtobill
-        obj.billstatus_billnum = bnum
-        obj.status = status_bill
-        obj.tax = tax
-        obj.billspayable = twithtax
-        if disc is None:
-            obj.discount = 0.0
+        items = Itemsdetails.objects.filter(cust_id=cid).filter(itm_billnum=bnum)
+        billeditems = billsStatus.objects.filter(customer=cid).filter(billstatus_billnum=bnum)
+        if billeditems.exists():
+            for i in items:
+                sumadd = sumadd + i.total_price
+            twithtax = ((sumadd * tax) / 100) + sumadd
+            if disc is not None:
+                twithtax = (twithtax * float(disc) / 100) + twithtax
+            obj = billeditems[0]
+            obj.customer = custtobill
+            obj.billstatus_billnum = bnum
+            obj.status = status_bill
+            obj.tax = tax
+            obj.billspayable = twithtax
+            if disc is None:
+                obj.discount = 0.0
+            else:
+                obj.discount = float(disc)
+            obj.save()
         else:
-            obj.discount = float(disc)
-        obj.save()
-    return render(request, 'bill/Customer_details.html',{'customerdetails':page_obj})
+            for i in items:
+                sumadd = sumadd + i.total_price
+            twithtax = ((sumadd * tax) / 100) + sumadd
+            if disc is not None:
+                twithtax = (twithtax * float(disc) / 100) + sumadd
+            obj = billsStatus()
+            obj.customer = custtobill
+            obj.billstatus_billnum = bnum
+            obj.status = status_bill
+            obj.tax = tax
+            obj.billspayable = twithtax
+            if disc is None:
+                obj.discount = 0.0
+            else:
+                obj.discount = float(disc)
+            obj.save()
+    return redirect('/billing/newbill/' + str(cid))
+
+def billedlist(request):
+    object = billsStatus.objects.all().order_by("-id")
+    paginator = Paginator(object, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request,'bill/billinglist.html',{'bills':page_obj})

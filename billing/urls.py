@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import newBill, Customer, editItemqty, delete_childitm, importCust_template, importcustomerdata, \
-    calculate_total
+    calculate_total,billedlist
 
 urlpatterns = [
     path('newbill/<int:id>', newBill.as_view(), name='newbill'),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('importcusttemplate', importCust_template, name='importcusttemplate'),
     path('importcustdata', importcustomerdata, name='importcustdata'),
     path('calculate',calculate_total,name='calculate'),
+    path('billinglist',billedlist,name='billinglist'),
 ]

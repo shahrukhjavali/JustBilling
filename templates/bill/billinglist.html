@@ -1,0 +1,58 @@
+{%extends 'dashboard.html'%}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+    <title>Billing List</title>
+    {%endblock%}
+</head>
+<body>
+{%block content%}
+<table class="table" id="bill_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">customer Name</th>
+        <th scope="col">BillNumber</th>
+        <th scope="col">tax</th>
+        <th scope="col">discount</th>
+        <th scope="col">status</th>
+        <th scope="col">total amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for bill in bills%}
+    <tr>
+        <td>{{bill.customer.billtoname}}</td>
+        <td>{{bill.billstatus_billnum}}</td>
+        <td>{{bill.tax}}</td>
+        <td>{{bill.discount}}</td>
+        <td>{{bill.status}}</td>
+        <td>{{bill.billspayable}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if uomlist.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ uomlist.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ uomlist.number }} of {{ uomlist.paginator.num_pages }}.
+        </span>
+
+        {% if uomlist.has_next %}
+            <a href="?page={{ uomlist.next_page_number }}">next</a>
+            <a href="?page={{ uomlist.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{%endblock%}
+</body>
+</html>
