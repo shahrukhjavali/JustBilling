@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.views.generic import View
 from products.models import Products
 from .BarcodeReader import barcodeScanner
-from .models import Customer as cust
+from .models import Customer as cust,billsStatus
 from master.models import UOM,Tax
 from .models import Itemsdetails
 from django.utils import timezone
@@ -135,3 +135,37 @@ def importcustomerdata(request):
                     executvie = request.user
                 )
         return render(request, 'bill/Customer_details.html',{'customerdetails':page_obj})
+
+def calculate_total(request):
+    object = cust.objects.all().order_by("-id")
+    paginator = Paginator(object, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    sumadd = 0
+    twithtax = 0
+    if request.method == 'POST':
+        cid = int(request.POST.get('custid'))
+        bnum = str(request.POST.get('cust_billnum'))
+        status_bill = request.POST.get('status')
+        tax = float(request.POST.get('taxper'))
+        disc = request.POST.get('disc')
+        custtobill = cust.objects.get(id=cid)
+        items = Itemsdetails.objects.filter(cust_id=cid).filter(itm_billnum = bnum)
+        for i in items:
+            sumadd = sumadd+i.total_price
+        twithtax = ((sumadd*tax)/100)+sumadd
+        print(twithtax)
+        #if disc is not None:
+            #twithtax = (twithtax*float(disc))/100
+        obj = billsStatus()
+        obj.customer = custtobill
+        obj.billstatus_billnum = bnum
+        obj.status = status_bill
+        obj.tax = tax
+        obj.billspayable = twithtax
+        if disc is None:
+            obj.discount = 0.0
+        else:
+            obj.discount = float(disc)
+        obj.save()
+    return render(request, 'bill/Customer_details.html',{'customerdetails':page_obj})

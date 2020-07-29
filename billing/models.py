@@ -25,7 +25,6 @@ class billsStatus(models.Model):
     customer = models.ForeignKey(Customer,on_delete=models.CASCADE)
     billstatus_billnum = models.CharField(max_length=30)
     status = models.CharField(max_length=30)
-    paymentType = models.CharField(max_length=30)
     tax = models.FloatField()
     discount = models.FloatField(blank=True, null=True)
     billspayable = models.FloatField()

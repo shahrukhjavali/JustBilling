@@ -37,19 +37,26 @@ $(document).ready(function(){
        document.querySelector("popup").style.display = "none"; 
     });
 });
-
-
 </script>
 {%endblock%}
 {%block content%}
 <div id="donefrm">
     <div class="donefrm-content">
         <strong>Add tax</strong>
-        <form method="post">
+        <form method="post" action="{%url 'calculate'%}">
             {%csrf_token%}
+            <input type="hidden" name="custid" value="{{custid.id}}"/>
+            <input type="hidden" name="cust_billnum" value="{{custid.billnum}}"/>
             <table>
                 <tr>
                     <td>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status">
+                                <option>Paid</option>
+                                <option>On Hold</option>
+                            </select>
+                        </div>
                         <div class="form-group">
                             <lable>Tax</lable>
                             <select name="taxper">
