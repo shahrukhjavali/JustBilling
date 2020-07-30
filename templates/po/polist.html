@@ -1,0 +1,69 @@
+{%extends 'dashboard.html'%}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+        <title>Purchase</title>
+    {%endblock%}
+</head>
+<body>
+{%block content%}
+<div style="float:left">
+    <a id="add_po" href="{%url 'addpo' %}" class="btn btn-primary">Create Po</a>
+</div>
+<br>
+<br>
+<table class="table" id="uom_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">Po Number</th>
+        <th scope="col">date</th>
+        <th scope="col">vendor</th>
+        <th scope="col">Required date</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for p in po%}
+    <tr>
+        <td>{{p.ponum}}</td>
+        <td>{{p.date}}</td>
+        <td>{{p.vendor.name}}</td>
+        <td>{{p.poreqbydate}}</td>
+    </tr>
+    {%endfor%}
+    {%for pot in objtracker%}
+        <tr>
+            <td>{{pot.po_num}}</td>
+            <td>{{pot.podetail.vendor.name}}</td>
+            <td>{{pot.status}}</td>
+            <td>{{pot.tax.name}}</td>
+            <td>{{pot.disc}}</td>
+            <td>{{pot.pototal}}</td>
+        </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if uomlist.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ po.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ po.number }} of {{ po.paginator.num_pages }}.
+        </span>
+
+        {% if po.has_next %}
+            <a href="?page={{ po.next_page_number }}">next</a>
+            <a href="?page={{ po.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{%endblock%}
+</body>
+</html>

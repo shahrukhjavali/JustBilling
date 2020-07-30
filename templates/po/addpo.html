@@ -1,0 +1,208 @@
+{%extends 'dashboard.html'%}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+    <title>Purchase</title>
+    {%endblock%}
+</head>
+<body>
+{%block css%}
+<link rel="stylesheet" href="{%static 'accounts/addpo.css'%}"/>
+{%endblock%}
+{%block js%}
+<script>
+    $(document).ready(function(){
+        $('#addpo').hide();
+        $('#doneftm').hide();
+        $('#addchilditems').hide();
+        $('#btnsub').click(function(){
+            $('#addpo').hide();
+        });
+        $('#btncancel').click(function(){
+            $('#addpo').hide();
+        });
+        $('#btnselproducts').click(function(){
+            $('#addchilditems').show();
+        });
+        $('#btndone').click(function(){
+            $('#doneftm').show();
+        });
+    });
+
+</script>
+{%endblock%}
+{%block content%}
+<div style="float:left">
+    <button class="btn btn-primary">Add Vendor</button>
+    <button id="btnselproducts" class="btn btn-info">Select Products</button>
+    <button id="btndone" class="btn btn-success">Done</button>
+</div>
+<br>
+<br>
+<table class="table table-bordered">
+    <thead class="thead-light">
+    <th>Po Number</th>
+    <th>Date</th>
+    <th>Vendor</th>
+    <th>Shipping Adderss</th>
+    <th>Po req Date</th>
+    </thead>
+    <tr>
+        {%for podetail in podetails%}
+        <td>{{podetail.ponum}}</td>
+        <td>{{podetail.date}}</td>
+        <td>{{podetail.vendor.name}}</td>
+        <td>
+            {{podetail.shipto}}
+            {{podetail.shipcity}}
+            {{podetail.shipstate}}
+            {{podetail.shippincode}}
+        </td>
+        <td>{{podetail.poreqbydate}}</td>
+        {%endfor%}
+    </tr>
+</table>
+<br>
+<div id="addchilditems">
+    <div class="childitms">
+        <strong>Add Items</strong>
+        <form method="post" action="{%url 'addpochild' 1 %}">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Select Product</label>
+                <select name="product" class="form-control">
+                    {%for product in products%}
+                    <option value="{{product.id}}">{{product.Name}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Qty</label>
+                <input type="number" name="qty" class="from-control"/>
+            </div>
+            <div class="form-group">
+                <label>Uom</label>
+                <select name="uom" class="form-control">
+                    {%for uom in uomobjs%}
+                    <option>{{uom.name}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <input type="submit" value="addItems" class="btn btn-info"/>
+        </form>
+    </div>
+</div>
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">Items</th>
+        <th scope="col">qty</th>
+        <th scope="col">Edit qty</th>
+        <th scope="col">Unit price</th>
+        <th scope="col">UOM</th>
+        <th scope="col">Sub total</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for poi in poitms%}
+    <tr>
+        <td>{{poi.po_items.Name}}</td>
+        <td>{{poi.qty}}</td>
+        <td>
+            <form method="post" action="{%url 'edititmqty' poi.id%}">
+                {%csrf_token%}
+                <div class="form-group">
+                    <input type="number" name="eqty" size="10px"/>
+                    <input type="hidden" value="submit"/>
+                </div>
+            </form>
+        </td>
+        <td>{{poi.po_items.price}}</td>
+        <td>{{poi.uom.name}}</td>
+        <td>{{poi.subtotal}}</td>
+        <td><a href="{%url 'delete' poi.id%}" class="btn btn-danger">Delete</a></td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div id="addpo">
+    <div class="po-content">
+        <strong>Create Po</strong>
+        <form method="post">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Vendor</label>
+                <select name="vendor">
+                    {%for v in venlist%}
+                    <option value="{{v.id}}">{{v.name}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Shipping Adderss1</label>
+                <input type="text" name="adderss1" placeholder="Adderss1"/>
+            </div>
+            <div class="form-group">
+                <label>Shipping Adderss2</label>
+                <input type="text" name="adderss2" placeholder="Adderss2"/>
+            </div>
+            <div class="form-group">
+                <label>City</label>
+                <input type="text" name="city"/>
+            </div>
+            <div class="form-group">
+                <label>State</label>
+                <input type="text" name="state"/>
+            </div>
+            <div class="form-group">
+                <label>pincode</label>
+                <input type="number" name="pincode"/>
+            </div>
+            <div class="form-group">
+                <label>Po required Date</label>
+                <input type="date" name="poreq_date"/>
+            </div>
+            <input type="submit" value="add" id="btnsub" class="btn btn-primary">
+            <a href="{%url 'addpo'%}" id="btncancel" class="btn btn-info">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<div id="doneftm">
+    <div class="content">
+        <form method="post" action="{%url 'donepo' 1%}">
+            <strong>Complete</strong>
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Tax</label>
+                <select name="tax">
+                    {%for t in taxobjs%}
+                    <option value="{{t.percentage}}">{{t.name}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Discount</label>
+                <input type="number" name="disc"/>
+            </div>
+            <div class="form-group">
+                <label>status</label>
+                <select name="status">
+                    <option>In progress</option>
+                    <option>compeleted</option>
+                </select>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Done"/>
+            <a href="{%url 'addpo' %}" class="btn btn-info">Cancel</a>
+        </form>
+    </div>
+</div>
+{%endblock%}
+</body>
+</html>

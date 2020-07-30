@@ -1,0 +1,62 @@
+#addpo{
+    background: rgba(0, 0, 0, 0.0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.po-content{
+    height: 500px;
+    width: 600px;
+    float:left;
+    background: bisque;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+#addchilditems{
+    background: rgba(0, 0, 0, 0.0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.childitms{
+    height: 350px;
+    width: 500px;
+    float:left;
+    background:bisque;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+#doneftm{
+    background: rgba(0, 0, 0, 0.0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.content{
+    height: 250px;
+    width: 500px;
+    float:left;
+    background:bisque;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}
