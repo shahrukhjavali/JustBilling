@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  po,addPo,addchildItems,deletechilditm,editchildqty,donePo
+from .views import  po,addPo,addchildItems,deletechilditm,editchildqty,donePo,sendemailToVendor
 
 urlpatterns = [
     path('polist',po,name='polist'),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('delete/<int:id>',deletechilditm,name='delete'),
     path('edititems/<int:id>',editchildqty,name='edititmqty'),
     path('donepo/<int:id>',donePo,name='donepo'),
+    path('send/<int:id>',sendemailToVendor,name='send'),
 ]

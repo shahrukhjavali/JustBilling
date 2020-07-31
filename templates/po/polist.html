@@ -24,6 +24,7 @@
         <th scope="col">date</th>
         <th scope="col">vendor</th>
         <th scope="col">Required date</th>
+        <th scope="col">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -33,6 +34,7 @@
         <td>{{p.date}}</td>
         <td>{{p.vendor.name}}</td>
         <td>{{p.poreqbydate}}</td>
+        <td><a href="{%url 'send' p.id%}" class="btn btn-info">Send Email</a></td>
     </tr>
     {%endfor%}
     {%for pot in objtracker%}
