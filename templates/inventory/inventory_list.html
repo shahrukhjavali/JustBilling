@@ -1,0 +1,111 @@
+{%extends 'dashboard.html'%}
+{%load staticfiles%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {%block title%}
+        <title>Inventory</title>
+    {%endblock%}
+</head>
+<body>
+{%block css%}
+<link rel="stylesheet" href="{%static 'accounts/inventory.css'%}"/>
+{%endblock%}
+{%block js%}
+    <script>
+    $(document).ready(function(){
+        $('#forminv').hide();
+        $('#addinv').click(function(){
+            $('#forminv').show();
+        });
+    });
+    </script>
+{%endblock%}
+{%block content%}
+<br>
+<div style="float:left">
+    <button id="addinv" class="btn btn-info">Add to inventory</button>
+</div>
+<br>
+<div id="forminv">
+   <div class="formcontent">
+       <strong>Add To Inventory</strong>
+      <form method="post">
+          {%csrf_token%}
+          <div class="form-group">
+           <label>Products</label>
+           <select name="prod">
+               {%for p in poitms%}
+               <option value="{{p.po_items.id}}">{{p.po_items.Name}}</option>
+               {%endfor%}
+           </select>
+          </div>
+          <div class="form-group">
+              <label>Uom</label>
+              <select name="uom">
+                  {%for u in uomlist%}
+                  <option value="{{u.id}}">{{u.name}}</option>
+                  {%endfor%}
+              </select>
+          </div>
+          <div class="form-group">
+              <label>Stock Qty</label>
+              <input type="number" name="stock"/>
+          </div>
+          <div class="form-group">
+              <label>Damaged Stock Qty</label>
+              <input type="number" name="damstock"/>
+          </div>
+          <input type="submit" value="Add Stock" class="btn btn-primary">
+          <a href="{%url 'invlist'%}" class="btn btn-info">Cancel</a>
+      </form>
+   </div>
+</div>
+<br>
+<table class="table" id="inv_table">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">PO Number</th>
+        <th scope="col">Product</th>
+        <th scope="col">Uom</th>
+        <th scope="col">Stock</th>
+        <th scope="col">CreatedBy</th>
+        <th scope="col">Last Update Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%for inv in liststock%}
+    <tr>
+        <td>{{inv.invponum}}</td>
+        <td>{{inv.invproducts.Name}}</td>
+        <td>{{inv.invuom.name}}</td>
+        <td>{{inv.stock}}</td>
+        <td>{{inv.created_by}}</td>
+        <td>{{inv.last_update_date}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if liststock.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ liststock.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ liststock.number }} of {{ liststock.paginator.num_pages }}.
+        </span>
+
+        {% if liststock.has_next %}
+            <a href="?page={{ liststock.next_page_number }}">next</a>
+            <a href="?page={{ liststock.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{%endblock%}
+</body>
+</html>

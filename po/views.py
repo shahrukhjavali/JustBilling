@@ -12,40 +12,31 @@ import random
 
 
 class addPo(View):
-    def get(self, request):
+    def get(self, request,*args,**kwargs):
         venlist = Vendor.objects.all()
-        podetails = Po.objects.filter(id=1)
+        podetails = Po.objects.get(id=kwargs['id'])
         products = Products.objects.all()
         objs = UOM.objects.all()
         taxs = Tax.objects.all()
-        poitms = poItems.objects.filter(podetails=podetails[0]).filter(ponum=podetails[0].ponum)
+        poitms = poItems.objects.filter(ponum=podetails.ponum)
         return render(self.request, 'po/addpo.html', {'venlist': venlist,
                                                       'podetails': podetails, 'products': products, 'uomobjs': objs,
                                                       'poitms': poitms, 'taxobjs': taxs})
-
-    def post(self, request):
-        obj = Po()
-        obj.ponum = str(getponum())
-        obj.date = timezone.now()
-        obj.vendor = Vendor.objects.get(id=1)
-        obj.shipto = request.POST.get('adderss1') + request.POST.get('adderss2')
-        obj.shipcity = request.POST.get('city')
-        obj.shipstate = request.POST.get('state')
-        obj.shippincode = request.POST.get('pincode')
-        obj.poreqbydate = request.POST.get('poreq_date')
-        obj.createdby = request.user
-        obj.creation_date = timezone.now()
-        obj.save()
-        return render(self.request, 'po/addpo.html', {'podetails': obj})
-
 
 def po(request):
     object = Po.objects.all().order_by("-id")
     paginator = Paginator(object, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'po/polist.html', {'po': page_obj})
-
+    potrackerlist = potracker.objects.all()
+    venlist = Vendor.objects.all()
+    # podetails = Po.objects.get(id=int(kwargs[id]))
+    products = Products.objects.all()
+    objs = UOM.objects.all()
+    taxs = Tax.objects.all()
+    # poitms = poItems.objects.filter(ponum=podetails.ponum)
+    return render(request, 'po/polist.html',
+                  {'venlist': venlist, 'products': products, 'uomobjs': objs, 'taxobjs': taxs,'po': page_obj,'potracker':potrackerlist})
 
 def addchildItems(request, id):
     if request.method == 'POST':
@@ -63,7 +54,7 @@ def addchildItems(request, id):
         obj.uom = uom
         obj.subtotal = subtotal
         obj.save()
-    return redirect('/po/addpo')
+    return redirect('/po/addpoitm/'+str(id))
 
 
 def getponum():
@@ -80,10 +71,12 @@ def deletechilditm(request, id):
 def editchildqty(request, id):
     if request.method == 'POST':
         obj = poItems.objects.get(id=id)
+        poid = request.POST.get('poid')
+        print(poid)
         obj.qty = float(request.POST.get('eqty'))
         obj.subtotal = obj.qty * obj.po_items.price
         obj.save()
-    return redirect('/po/addpo')
+    return redirect('/po/addpoitm/'+poid)
 
 def sendemailToVendor(request,id):
     po = Po.objects.get(id=id)
@@ -136,7 +129,7 @@ def donePo(request, id):
         c1 = sheet.cell(row=4, column=1)
         c1.value = 'PO Number'
         c1.font.copy(bold=True)
-        sheet.cell(row=4, column=2).value = 'Date'
+        ce1 = sheet.cell(row=4, column=2).value = 'Date'
         sheet.cell(row=4, column=3).value = 'Vendor'
         sheet.cell(row=4, column=4).value = 'Shipping Adderss'
         sheet.cell(row=4, column=5).value = 'Po Required Date'
@@ -164,4 +157,29 @@ def donePo(request, id):
         sheet.cell(row=9+len(l2), column=4).value = 'Total'
         sheet.cell(row=9+len(l2), column=5).value = total
         wb.save(filename)
-    return redirect('/po/addpo')
+    return redirect('/po/addpoitm/'+str(id))
+
+def renderPolist(request):
+    if request.method == 'GET':
+        venlist = Vendor.objects.all()
+        #podetails = Po.objects.get(id=int(kwargs[id]))
+        products = Products.objects.all()
+        objs = UOM.objects.all()
+        taxs = Tax.objects.all()
+        #poitms = poItems.objects.filter(ponum=podetails.ponum)
+        return render(request, 'po/addpo.html', {'venlist': venlist,'products': products, 'uomobjs': objs,'taxobjs': taxs})
+    else:
+        obj = Po()
+        obj.ponum = str(getponum())
+        obj.date = timezone.now()
+        obj.vendor = Vendor.objects.get(id=request.POST.get('vendor'))
+        obj.shipto = request.POST.get('adderss1') + request.POST.get('adderss2')
+        obj.shipcity = request.POST.get('city')
+        obj.shipstate = request.POST.get('state')
+        obj.shippincode = request.POST.get('pincode')
+        obj.poreqbydate = request.POST.get('poreq_date')
+        obj.createdby = request.user
+        obj.creation_date = timezone.now()
+        obj.save()
+    return redirect('/po/addpoitm/' + str(obj.id))
+

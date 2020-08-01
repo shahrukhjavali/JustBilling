@@ -32,13 +32,16 @@
         $('#btndone').click(function(){
             $('#doneftm').show();
         });
+        $('#pofrm').click(function(){
+            $('#addpo').show();
+        });
     });
 
 </script>
 {%endblock%}
 {%block content%}
 <div style="float:left">
-    <button class="btn btn-primary">Add Vendor</button>
+    <button class="btn btn-primary" id="pofrm">Add Vendor</button>
     <button id="btnselproducts" class="btn btn-info">Select Products</button>
     <button id="btndone" class="btn btn-success">Done</button>
 </div>
@@ -53,25 +56,23 @@
     <th>Po req Date</th>
     </thead>
     <tr>
-        {%for podetail in podetails%}
-        <td>{{podetail.ponum}}</td>
-        <td>{{podetail.date}}</td>
-        <td>{{podetail.vendor.name}}</td>
+        <td>{{podetails.ponum}}</td>
+        <td>{{podetails.date}}</td>
+        <td>{{podetails.vendor.name}}</td>
         <td>
-            {{podetail.shipto}}
-            {{podetail.shipcity}}
-            {{podetail.shipstate}}
-            {{podetail.shippincode}}
+            {{podetails.shipto}}
+            {{podetails.shipcity}}
+            {{podetails.shipstate}}
+            {{podetails.shippincode}}
         </td>
-        <td>{{podetail.poreqbydate}}</td>
-        {%endfor%}
+        <td>{{podetails.poreqbydate}}</td>
     </tr>
 </table>
 <br>
 <div id="addchilditems">
     <div class="childitms">
         <strong>Add Items</strong>
-        <form method="post" action="{%url 'addpochild' 1 %}">
+        <form method="post" action="{%url 'addpochild' podetails.id %}">
             {%csrf_token%}
             <div class="form-group">
                 <label>Select Product</label>
@@ -110,6 +111,7 @@
     </tr>
     </thead>
     <tbody>
+    {%if poitms%}
     {%for poi in poitms%}
     <tr>
         <td>{{poi.po_items.Name}}</td>
@@ -118,6 +120,7 @@
             <form method="post" action="{%url 'edititmqty' poi.id%}">
                 {%csrf_token%}
                 <div class="form-group">
+                    <input type="hidden" name="poid" value="{{podetails.id}}">
                     <input type="number" name="eqty" size="10px"/>
                     <input type="hidden" value="submit"/>
                 </div>
@@ -129,54 +132,12 @@
         <td><a href="{%url 'delete' poi.id%}" class="btn btn-danger">Delete</a></td>
     </tr>
     {%endfor%}
+    {%endif%}
     </tbody>
 </table>
-<div id="addpo">
-    <div class="po-content">
-        <strong>Create Po</strong>
-        <form method="post">
-            {%csrf_token%}
-            <div class="form-group">
-                <label>Vendor</label>
-                <select name="vendor">
-                    {%for v in venlist%}
-                    <option value="{{v.id}}">{{v.name}}</option>
-                    {%endfor%}
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Shipping Adderss1</label>
-                <input type="text" name="adderss1" placeholder="Adderss1"/>
-            </div>
-            <div class="form-group">
-                <label>Shipping Adderss2</label>
-                <input type="text" name="adderss2" placeholder="Adderss2"/>
-            </div>
-            <div class="form-group">
-                <label>City</label>
-                <input type="text" name="city"/>
-            </div>
-            <div class="form-group">
-                <label>State</label>
-                <input type="text" name="state"/>
-            </div>
-            <div class="form-group">
-                <label>pincode</label>
-                <input type="number" name="pincode"/>
-            </div>
-            <div class="form-group">
-                <label>Po required Date</label>
-                <input type="date" name="poreq_date"/>
-            </div>
-            <input type="submit" value="add" id="btnsub" class="btn btn-primary">
-            <a href="{%url 'addpo'%}" id="btncancel" class="btn btn-info">Cancel</a>
-        </form>
-    </div>
-</div>
-
 <div id="doneftm">
     <div class="content">
-        <form method="post" action="{%url 'donepo' 1%}">
+        <form method="post" action="{%url 'donepo' podetails.id%}">
             <strong>Complete</strong>
             {%csrf_token%}
             <div class="form-group">
@@ -199,7 +160,7 @@
                 </select>
             </div>
             <input type="submit" class="btn btn-primary" value="Done"/>
-            <a href="{%url 'addpo' %}" class="btn btn-info">Cancel</a>
+            <a href="{%url 'addpoitm' podetails.id%}" class="btn btn-info">Cancel</a>
         </form>
     </div>
 </div>

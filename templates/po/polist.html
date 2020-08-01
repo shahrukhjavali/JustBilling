@@ -11,11 +11,66 @@
     {%endblock%}
 </head>
 <body>
+{%block css%}
+<link rel="stylesheet" href="{%static 'accounts/polist.css' %}">
+{%endblock%}
+{%block js%}
+<script>
+    $(document).ready(function(){
+        $('#addpo').hide();
+        $('#add_po').click(function(){
+            $('#addpo').show();
+        });
+    });
+</script>
+{%endblock%}
 {%block content%}
 <div style="float:left">
-    <a id="add_po" href="{%url 'addpo' %}" class="btn btn-primary">Create Po</a>
+    <button id="add_po"  class="btn btn-primary">Create Po</button>
 </div>
 <br>
+<div id="addpo">
+    <div class="po-content">
+        <strong>Create Po</strong>
+        <form method="post" action="{%url 'addpo'%}">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Vendor</label>
+                <select name="vendor">
+                    {%for v in venlist%}
+                    <option value="{{v.id}}">{{v.name}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Shipping Adderss1</label>
+                <input type="text" name="adderss1" placeholder="Adderss1"/>
+            </div>
+            <div class="form-group">
+                <label>Shipping Adderss2</label>
+                <input type="text" name="adderss2" placeholder="Adderss2"/>
+            </div>
+            <div class="form-group">
+                <label>City</label>
+                <input type="text" name="city"/>
+            </div>
+            <div class="form-group">
+                <label>State</label>
+                <input type="text" name="state"/>
+            </div>
+            <div class="form-group">
+                <label>pincode</label>
+                <input type="number" name="pincode"/>
+            </div>
+            <div class="form-group">
+                <label>Po required Date</label>
+                <input type="date" name="poreq_date"/>
+            </div>
+            <input type="submit" value="add" id="btnsub" class="btn btn-primary">
+            <a href="{%url 'addpo'%}" id="btncancel" class="btn btn-info">Cancel</a>
+        </form>
+    </div>
+</div>
 <br>
 <table class="table" id="uom_table">
     <thead class="thead-light">
@@ -24,17 +79,27 @@
         <th scope="col">date</th>
         <th scope="col">vendor</th>
         <th scope="col">Required date</th>
+        <th scope="col">Status</th>
         <th scope="col">Action</th>
     </tr>
     </thead>
     <tbody>
     {%for p in po%}
     <tr>
-        <td>{{p.ponum}}</td>
+        <td><a href='/file/{{p.ponum}}.xlsx'>{{p.ponum}}</a></td>
         <td>{{p.date}}</td>
         <td>{{p.vendor.name}}</td>
         <td>{{p.poreqbydate}}</td>
-        <td><a href="{%url 'send' p.id%}" class="btn btn-info">Send Email</a></td>
+        {%for pot in potracker%}
+        <td>{{pot.status}}</td>
+        {%endfor%}
+        <td>
+            <a href="{%url 'addpoitm' p.id %}" class="btn btn-info">Add Items</a><br><br>
+            {%for pot in potracker%}
+            <a href="{%url 'send' p.id%}" class="btn btn-info">Send Email</a>
+            <a href="{%url 'addinvpo' p.ponum%}" class="btn btn-info">Add inventory</a>
+            {%endfor%}
+        </td>
     </tr>
     {%endfor%}
     {%for pot in objtracker%}

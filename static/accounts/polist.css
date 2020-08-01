@@ -1,0 +1,19 @@
+#addpo{
+    background: rgba(0, 0, 0, 0.0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.po-content{
+    height: 500px;
+    width: 600px;
+    background: bisque;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}
