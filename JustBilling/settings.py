@@ -13,7 +13,7 @@ SECRET_KEY = '#8id5nscbrgch#^+9n!+d9=^s$kek(zy(fm$6%@4$)alj%(3jv'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['simplebilling.pythonanywhere.com']
 
 
 # Application definition
