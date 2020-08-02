@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'JustBilling.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bmunkbf172qdmlaefm2x',
+        'NAME': 'ukkky3zkfh046xx7$bmunkbf172qdmlaefm2x',
         'HOST':'bmunkbf172qdmlaefm2x-mysql.services.clever-cloud.com',
         'PORT':'3306',
         'USER':'ukkky3zkfh046xx7',
