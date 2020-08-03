@@ -78,7 +78,7 @@ DATABASES = {
         'HOST':'bmunkbf172qdmlaefm2x-mysql.services.clever-cloud.com',
         'PORT':'3306',
         'USER':'ukkky3zkfh046xx7',
-        'PASSWORD':'zUidHm41CcAxzpccebiJ',
+        'PASSWORD':'',
     }
 }
 
